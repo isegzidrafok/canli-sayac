@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canlı Ortak Sayaç</title>
+  <!-- Socket.IO CDN -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+    .card {
+      background: #1e293b;
+      padding: 2rem 3rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    h1 { font-size: 4rem; margin: 0.5rem 0; color: #38bdf8; }
+    button {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:active { transform: scale(0.98); }
+    #durum { margin-top: 1rem; font-size: 0.9rem; color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Ortak Sayaç</h2>
+    <h1 id="sayacVal">0</h1>
+    <button id="btnArttir">Arttır (+1)</button>
+    <div id="durum">Bağlanıyor...</div>
+  </div>
+
+  <script>
+    // BURAYA Render'da aldığın sunucu URL'sini yazacaksın (Örn: https://canli-sayac.onrender.com)
+    const RENDER_URL = "https://BURAYA_RENDER_URLNIZ_GELECEK.onrender.com"; 
+
+    const socket = io(RENDER_URL);
+
+    const sayacEl = document.getElementById("sayacVal");
+    const btn = document.getElementById("btnArttir");
+    const durumEl = document.getElementById("durum");
+
+    socket.on("connect", () => {
+      durumEl.textContent = "🟢 Canlı Bağlantı Kuruldu";
+      durumEl.style.color = "#4ade80";
+    });
+
+    socket.on("disconnect", () => {
+      durumEl.textContent = "🔴 Bağlantı Kesildi (Yeniden deneniyor...)";
+      durumEl.style.color = "#f87171";
+    });
+
+    socket.on("sayac_guncelle", (yeniDeger) => {
+      sayacEl.textContent = yeniDeger;
+    });
+
+    btn.addEventListener("click", () => {
+      socket.emit("sayac_arttir");
+    });
+  </script>
+</body>
+</html>
